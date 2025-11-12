@@ -260,7 +260,6 @@ export const Sidebar = () => {
       <Divider />
       <Box sx={{ p: 2 }}>
         <IconButton
-          fullWidth
           onClick={() => {
             if (viewMode === 'forum') {
               setOpenForumDialog(true);
@@ -269,6 +268,7 @@ export const Sidebar = () => {
             }
           }}
           sx={{
+            width: '100%',
             border: '2px dashed',
             borderColor: 'primary.main',
             borderRadius: 2,
