@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { createClient } from '@supabase/supabase-js';
 import {
   Box,
   Button,
@@ -13,19 +12,9 @@ import {
   CircularProgress,
   Divider,
 } from '@mui/material';
-import { Visibility, VisibilityOff, Mail, Lock } from '@mui/icons-material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { MailIcon, LockIcon } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-
-// Initialize Supabase client (replace with your actual URL and anon key)
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase environment variables!');
-}
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function Login() {
   const { login } = useAuth();
@@ -43,18 +32,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      /*   const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-  
-        if (error) throw error;
-  
-        if (data.user) {
-          navigate('/dashboard'); // Change to your protected route
-        } */
       await login(email, password);
-
       navigate('/dashboard'); // Change to your protected route
     } catch (err: any) {
       setError(err.message || 'Failed to log in. Please check your credentials.');

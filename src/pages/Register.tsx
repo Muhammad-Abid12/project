@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link, data } from 'react-router-dom';
-import { createClient } from '@supabase/supabase-js';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Box,
@@ -16,16 +15,6 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { MailIcon, LockIcon, UserIcon } from 'lucide-react';
-
-// Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase environment variables!');
-}
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function SignUp() {
   const { register } = useAuth();
@@ -73,7 +62,6 @@ export default function SignUp() {
     try {
       await register(fullName, email, password);
       setSuccess(true);
-      // navigate('/login');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err: any) {
       setError(err.message || 'Failed to create account. Please try again.');

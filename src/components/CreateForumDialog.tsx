@@ -11,16 +11,17 @@ import {
   Stack,
 } from '@mui/material';
 import { Forum } from '../types';
+import { useMessaging } from '../contexts/MessagingContext';
 
 interface CreateForumDialogProps {
   open: boolean;
   onClose: () => void;
-  onCreate: (forum: Omit<Forum, 'id' | 'messageCount' | 'lastActivity'>) => void;
 }
 
 const CATEGORIES = ['Development', 'Design', 'Business', 'General', 'Help & Support', 'Announcements'];
 
-export const CreateForumDialog = ({ open, onClose, onCreate }: CreateForumDialogProps) => {
+export const CreateForumDialog = ({ open, onClose }: CreateForumDialogProps) => {
+  const { createForum } = useMessaging();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
@@ -36,17 +37,12 @@ export const CreateForumDialog = ({ open, onClose, onCreate }: CreateForumDialog
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!validate()) return;
-
-    onCreate({
+    await createForum({
       title: title.trim(),
       description: description.trim(),
       category,
-      author: {
-        id: 'current-user',
-        username: 'You',
-      },
       tags,
       isPinned: false,
     });

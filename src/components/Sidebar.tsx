@@ -28,33 +28,10 @@ import { CreateChatDialog } from './CreateChatDialog';
 
 
 export const Sidebar = () => {
-  const { viewMode, setViewMode, selectedChat, setSelectedChat, selectedForum, setSelectedForum } = useMessaging();
+  const { forums, createForum, viewMode, setViewMode, selectedChat, setSelectedChat, selectedForum, setSelectedForum } = useMessaging();
   const [searchQuery, setSearchQuery] = useState('');
   const [openForumDialog, setOpenForumDialog] = useState(false);
   const [openChatDialog, setOpenChatDialog] = useState(false);
-  const [forums, setForums] = useState<Forum[]>([
-    {
-      id: 'forum-1',
-      title: 'Best Practices for React Development',
-      description: 'Discuss React patterns and best practices',
-      category: 'Development',
-      author: { id: '1', username: 'DevMaster' },
-      messageCount: 42,
-      lastActivity: new Date(),
-      isPinned: true,
-      tags: ['react', 'javascript', 'frontend'],
-    },
-    {
-      id: 'forum-2',
-      title: 'Material-UI vs Tailwind CSS',
-      description: 'Which styling solution is better?',
-      category: 'Design',
-      author: { id: '2', username: 'DesignGuru' },
-      messageCount: 28,
-      lastActivity: new Date(),
-      tags: ['css', 'ui', 'design'],
-    },
-  ]);
   const [chats, setChats] = useState<Chat[]>([
     {
       id: 'chat-1',
@@ -93,15 +70,9 @@ export const Sidebar = () => {
     forum.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleCreateForum = (newForum: Omit<Forum, 'id' | 'messageCount' | 'lastActivity'>) => {
-    const forum: Forum = {
-      ...newForum,
-      id: `forum-${Date.now()}`,
-      messageCount: 0,
-      lastActivity: new Date(),
-    };
-    setForums([...forums, forum]);
-    setSelectedForum(forum);
+  // TODO: Remove This
+  const handleCreateForum = async (newForum: Omit<Forum, 'id' | 'author' | 'messageCount' | 'lastActivity'>) => {
+    await createForum(newForum);
     setViewMode('forum');
   };
 
@@ -285,7 +256,7 @@ export const Sidebar = () => {
       <CreateForumDialog
         open={openForumDialog}
         onClose={() => setOpenForumDialog(false)}
-        onCreate={handleCreateForum}
+      // onCreate={handleCreateForum}
       />
       <CreateChatDialog
         open={openChatDialog}

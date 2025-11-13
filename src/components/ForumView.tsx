@@ -7,88 +7,14 @@ import {
   Chip,
   Paper,
   Avatar,
-  Divider,
 } from '@mui/material';
 import { Send, PushPin } from '@mui/icons-material';
 import { useMessaging } from '../contexts/MessagingContext';
 import { MessageThread } from './MessageThread';
-import { Message } from '../types';
-
-const mockMessages: Message[] = [
-  {
-    id: 'msg-1',
-    content: 'I think React hooks have really improved the way we write components. What do you all think?',
-    author: {
-      id: 'user-2',
-      username: 'DevMaster',
-      avatar: 'https://images.pexels.com/photos/220453/pexels-photo-220453.jpeg?w=100',
-    },
-    timestamp: new Date('2025-11-10T10:30:00'),
-    upvotes: 24,
-    downvotes: 2,
-    replies: [
-      {
-        id: 'msg-2',
-        content: 'Absolutely! useState and useEffect are game changers. Custom hooks are even better for reusability.',
-        author: {
-          id: 'user-3',
-          username: 'CodeNinja',
-          avatar: 'https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?w=100',
-        },
-        timestamp: new Date('2025-11-10T11:15:00'),
-        upvotes: 12,
-        downvotes: 0,
-        parentId: 'msg-1',
-        replies: [
-          {
-            id: 'msg-3',
-            content: 'Custom hooks are the best! I created one for handling forms and it saved me so much time.',
-            author: {
-              id: 'user-4',
-              username: 'ReactFan',
-              avatar: 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?w=100',
-            },
-            timestamp: new Date('2025-11-10T12:00:00'),
-            upvotes: 8,
-            downvotes: 1,
-            parentId: 'msg-2',
-          },
-        ],
-      },
-      {
-        id: 'msg-4',
-        content: 'I still prefer class components for complex state management. Anyone else?',
-        author: {
-          id: 'user-5',
-          username: 'OldSchool',
-          avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?w=100',
-        },
-        timestamp: new Date('2025-11-10T13:30:00'),
-        upvotes: 3,
-        downvotes: 15,
-        parentId: 'msg-1',
-      },
-    ],
-  },
-  {
-    id: 'msg-5',
-    content: 'Has anyone tried using useReducer for global state instead of Redux? Thoughts?',
-    author: {
-      id: 'user-6',
-      username: 'StateManager',
-      avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?w=100',
-    },
-    timestamp: new Date('2025-11-11T08:00:00'),
-    upvotes: 18,
-    downvotes: 1,
-    replies: [],
-  },
-];
 
 export const ForumView = () => {
-  const { selectedForum, currentUser } = useMessaging();
+  const { selectedForum, currentUser, messages, postMessage } = useMessaging();
   const [newMessage, setNewMessage] = useState('');
-  const [messages, setMessages] = useState<Message[]>(mockMessages);
 
   if (!selectedForum) {
     return (
@@ -108,60 +34,16 @@ export const ForumView = () => {
     );
   }
 
-  const handleSendMessage = () => {
-    if (newMessage.trim()) {
-      const message: Message = {
-        id: `msg-${Date.now()}`,
-        content: newMessage,
-        author: {
-          id: currentUser.id,
-          username: currentUser.username,
-          avatar: currentUser.avatar,
-        },
-        timestamp: new Date(),
-        upvotes: 0,
-        downvotes: 0,
-        replies: [],
-      };
-      setMessages([...messages, message]);
+  const handleSendMessage = async () => {
+    if (newMessage.trim() && selectedForum) {
+      await postMessage(selectedForum.id, newMessage);
       setNewMessage('');
     }
   };
-
-  const handleReply = (parentId: string, content: string) => {
-    const newReply: Message = {
-      id: `msg-${Date.now()}`,
-      content,
-      author: {
-        id: currentUser.id,
-        username: currentUser.username,
-        avatar: currentUser.avatar,
-      },
-      timestamp: new Date(),
-      upvotes: 0,
-      downvotes: 0,
-      parentId,
-    };
-
-    const addReplyToThread = (msgs: Message[]): Message[] => {
-      return msgs.map((msg) => {
-        if (msg.id === parentId) {
-          return {
-            ...msg,
-            replies: [...(msg.replies || []), newReply],
-          };
-        }
-        if (msg.replies) {
-          return {
-            ...msg,
-            replies: addReplyToThread(msg.replies),
-          };
-        }
-        return msg;
-      });
-    };
-
-    setMessages(addReplyToThread(messages));
+  const handleReply = async (parentId: string, content: string) => {
+    if (selectedForum) {
+      await postMessage(selectedForum.id, content, parentId);
+    }
   };
 
   return (
