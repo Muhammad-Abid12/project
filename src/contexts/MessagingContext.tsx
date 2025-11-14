@@ -157,18 +157,31 @@ export const MessagingProvider = ({ children }: { children: ReactNode }) => {
 
   // Post Message (unchanged, but add refresh)
   const postMessage = async (forumId: string, content: string, parentId?: string) => {
-    const { error } = await supabase
-      .from('forum_messages')
-      .insert({
-        forum_id: forumId,
-        content,
-        author_id: user?.id,
-        parent_id: parentId,
-      });
+    // console.log('Posting message:', content);
+    
+    try {
+      const { data, error } = await supabase
+        .from('forum_messages')
+        .insert({
+          forum_id: forumId,
+          content,
+          author_id: user?.id,
+          parent_id: parentId,
+        })
+        .select()
+        .single();
 
-    if (error) throw error;
-    // Refresh messages after post
-    await fetchMessages(forumId);
+      if (error) {
+        console.error('Error posting message:', error);
+        throw error;
+      }
+      // console.log('Message posted successfully:', data);
+      // Refresh messages
+      await fetchMessages(forumId);
+    } catch (err) {
+      console.error('Failed to post message:', err);
+      throw err;
+    }
   };
 
   // Realtime: Forums (listen for changes)
